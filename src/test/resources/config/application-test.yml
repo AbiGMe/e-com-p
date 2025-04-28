@@ -1,0 +1,43 @@
+logging:
+    config: classpath:logback.xml
+    level:
+        com:
+            abiy:
+                ecomp: 'OFF'
+spring:
+    main:
+        banner-mode: 'off'
+        allow-bean-definition-overriding: true
+    datasource:
+        driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+        hikari:
+            maximum-pool-size: 2
+        password: ''
+        url: jdbc:tc:postgresql:17.4:///ecompApplication?TC_TMPFS=/testtmpfs:rw
+        username: ecompApplication
+    data:
+        redis:
+            url: ${TEST_REDIS_URL}
+    liquibase:
+        contexts: test
+    security:
+        oauth2:
+            client:
+                provider:
+                    oidc:
+                        issuer-uri: http://DO_NOT_CALL:9080/realms/ecomp
+langchain4j:
+    open-ai:
+        chat-model:
+            api-key: jhipster
+kafka:
+    bootstrap-servers: localhost:9092
+server:
+    port: 0
+springdoc:
+    oauth2:
+        authorization-url: http://localhost:9080/realms/ecomp/protocol/openid-connect/auth
+    swagger-ui:
+        oauth:
+            client-id: web_app
+            realm: ecomp

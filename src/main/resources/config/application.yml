@@ -1,0 +1,138 @@
+logging:
+    level:
+        com:
+            abiy:
+                ecomp: INFO
+spring:
+    application:
+        name: EcompApplication
+    datasource:
+        driver-class-name: org.postgresql.Driver
+        hikari:
+            auto-commit: false
+            poolName: Hikari
+        password: psql
+        type: com.zaxxer.hikari.HikariDataSource
+        url: jdbc:postgresql://localhost:5432/ecom_properties
+        username: postgres
+    data:
+        redis:
+            database: 0
+            url: redis://localhost:6379
+        jpa:
+            repositories:
+                bootstrap-mode: deferred
+    task:
+        execution:
+            pool:
+                keep-alive: 10s
+                max-size: 16
+                queue-capacity: 100
+            thread-name-prefix: ecompApplication-task-
+        scheduling:
+            pool:
+                size: 2
+            thread-name-prefix: ecompApplication-scheduling-
+    profiles:
+        active: '@spring.profiles.active@'
+    jpa:
+        hibernate:
+            ddl-auto: none
+            naming:
+                implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+                physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+        open-in-view: false
+        properties:
+            hibernate:
+                connection:
+                    provider_disables_autocommit: true
+                generate_statistics: false
+                jdbc:
+                    batch_size: 25
+                    time_zone: UTC
+                order_inserts: true
+                order_updates: true
+                query:
+                    fail_on_pagination_over_collection_fetch: true
+                    in_clause_parameter_padding: true
+    liquibase:
+        change-log: classpath:config/liquibase/master.xml
+    jackson:
+        default-property-inclusion: non_absent
+    security:
+        oauth2:
+            client:
+                provider:
+                    oidc:
+                        issuer-uri: http://localhost:9080/realms/ecomp
+                registration:
+                    oidc:
+                        client-id: web_app
+                        client-secret: web_app
+                        scope: openid,profile,email
+langchain4j:
+    open-ai:
+        chat-model:
+            # You can temporarily use 'demo' key, which is provided for free for demonstration purposes
+            api-key: demo
+            log-requests: 'true'
+            log-responses: 'true'
+            model-name: gpt-4o-mini
+kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+        '[auto.offset.reset]': earliest
+        '[group.id]': myapp
+        '[key.deserializer]': org.apache.kafka.common.serialization.StringDeserializer
+        '[value.deserializer]': org.apache.kafka.common.serialization.StringDeserializer
+    polling:
+        timeout: 10000
+    producer:
+        '[key.serializer]': org.apache.kafka.common.serialization.StringSerializer
+        '[value.serializer]': org.apache.kafka.common.serialization.StringSerializer
+application:
+    cache:
+        ehcache:
+            max-entries: 100
+            time-to-live-seconds: 3600
+    security:
+        oauth2:
+            audience: account,api://default
+management:
+    endpoint:
+        health:
+            probes:
+                enabled: true
+            show-details: always
+    endpoints:
+        web:
+            base-path: /management
+            exposure:
+                include:
+                    - configprops
+                    - env
+                    - health
+                    - info
+                    - logfile
+                    - loggers
+                    - threaddump
+    info:
+        env:
+            enabled: true
+        # Git Information
+        git:
+            enabled: true
+            mode: full
+server:
+    port: 8080
+springdoc:
+    enable-native-support: true
+    swagger-ui:
+        operationsSorter: alpha
+        tagsSorter: alpha
+        tryItOutEnabled: true
+        oauth:
+            client-id: web_app
+            realm: ecomp
+    oauth2:
+        authorization-url: http://localhost:9080/realms/ecomp/protocol/openid-connect/auth
