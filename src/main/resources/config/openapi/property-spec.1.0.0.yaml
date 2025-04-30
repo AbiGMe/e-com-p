@@ -1,0 +1,681 @@
+openapi: 3.0.1
+info:
+  title: E-Commerce Property Platform API
+  description: API for managing property listings, users, agents, and transactions
+  version: 1.0.0
+servers:
+  - url: https://api.propertyplatform.com/v1
+    description: Production server
+  - url: https://staging-api.propertyplatform.com/v1
+    description: Staging server
+
+tags:
+  - name: properties
+    description: Property listings management
+  - name: search
+    description: Property search and filtering
+  - name: users
+    description: Customer management
+  - name: agents
+    description: Agent management
+  - name: payments
+    description: Payment processing
+  - name: analytics
+    description: Reporting and insights
+  - name: admin
+    description: Administrative functions
+  - name: virtual_tours
+    description: 360° virtual tours
+  - name: ai
+    description: Recommendation engine
+
+paths:
+  # Property Listings Module
+  /properties:
+    get:
+      tags: [properties]
+      summary: List all properties
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/limit'
+      responses:
+        200:
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/property'
+    post:
+      tags: [properties]
+      summary: Create a new property listing
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/property_create'
+      responses:
+        201:
+          description: Property created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/property'
+
+  /properties/{property-id}:
+    get:
+      tags: [properties]
+      summary: Get property details
+      parameters:
+        - $ref: '#/components/parameters/property_id'
+      responses:
+        200:
+          description: Property details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/property'
+    put:
+      tags: [properties]
+      summary: Update property details
+      parameters:
+        - $ref: '#/components/parameters/property_id'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/property_update'
+      responses:
+        200:
+          description: Property updated successfully
+    delete:
+      tags: [properties]
+      summary: Delete a property
+      parameters:
+        - $ref: '#/components/parameters/property_id'
+      responses:
+        204:
+          description: Property deleted successfully
+
+  /properties/{property-id}/media:
+    post:
+      tags: [properties]
+      summary: Upload media for a property
+      parameters:
+        - $ref: '#/components/parameters/property_id'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                media_type:
+                  type: string
+                  enum: [image, video, virtual_tour]
+      responses:
+        201:
+          description: Media uploaded successfully
+
+  # Search Module
+  /search:
+    get:
+      tags: [search]
+      summary: Search properties with filters
+      parameters:
+        - $ref: '#/components/parameters/query'
+        - $ref: '#/components/parameters/property_type'
+        - $ref: '#/components/parameters/location'
+        - $ref: '#/components/parameters/min_price'
+        - $ref: '#/components/parameters/max_price'
+        - $ref: '#/components/parameters/bedrooms'
+        - $ref: '#/components/parameters/bathrooms'
+        - $ref: '#/components/parameters/sort_by'
+        - $ref: '#/components/parameters/sort_order'
+      responses:
+        200:
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/property'
+
+  /search/suggestions:
+    get:
+      tags: [search]
+      summary: Get real-time search suggestions
+      parameters:
+        - $ref: '#/components/parameters/query'
+      responses:
+        200:
+          description: Search suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+
+  # Agent Management Module
+  /agents:
+    post:
+      tags: [agents]
+      summary: Register a new agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/agent_register'
+      responses:
+        201:
+          description: Agent registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/agent'
+
+  /agents/{agent-id}/properties:
+    get:
+      tags: [agents]
+      summary: Get properties assigned to an agent
+      parameters:
+        - $ref: '#/components/parameters/agent_id'
+      responses:
+        200:
+          description: List of assigned properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/property'
+
+  # Payment Module
+  /payments:
+    post:
+      tags: [payments]
+      summary: Process a payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/payment_request'
+      responses:
+        201:
+          description: Payment processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/payment'
+
+  # Analytics Module
+  /analytics/property_views:
+    get:
+      tags: [analytics]
+      summary: Get property view analytics
+      parameters:
+        - $ref: '#/components/parameters/property_id'
+        - $ref: '#/components/parameters/time_range'
+      responses:
+        200:
+          description: Property view analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/property_analytics'
+
+  # Virtual Tours Module
+  /virtual-tours:
+    post:
+      tags: [virtual_tours]
+      summary: Create a virtual tour
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/virtual_tour_create'
+      responses:
+        201:
+          description: Virtual tour created successfully
+
+  # AI Recommendations Module
+  /recommendations:
+    get:
+      tags: [ai]
+      summary: Get property recommendations for user
+      parameters:
+        - $ref: '#/components/parameters/user_id'
+      responses:
+        200:
+          description: Recommended properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/property'
+
+components:
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number
+      required: false
+      schema:
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        default: 10
+    property_id:
+      name: property-id
+      in: path
+      description: ID of the property
+      required: true
+      schema:
+        type: string
+    user_id:
+      name: user_id
+      in: path
+      description: ID of the user
+      required: true
+      schema:
+        type: string
+    agent_id:
+      name: agent-id
+      in: path
+      description: ID of the agent
+      required: true
+      schema:
+        type: string
+    query:
+      name: query
+      in: query
+      description: Search query
+      required: false
+      schema:
+        type: string
+    property_type:
+      name: property_type
+      in: query
+      description: Type of property (residential, commercial, etc.)
+      required: false
+      schema:
+        type: string
+    location:
+      name: location
+      in: query
+      description: Location filter
+      required: false
+      schema:
+        type: string
+    min_price:
+      name: min_price
+      in: query
+      description: Minimum price filter
+      required: false
+      schema:
+        type: number
+    max_price:
+      name: max_price
+      in: query
+      description: Maximum price filter
+      required: false
+      schema:
+        type: number
+    bedrooms:
+      name: bedrooms
+      in: query
+      description: Number of bedrooms filter
+      required: false
+      schema:
+        type: integer
+    bathrooms:
+      name: bathrooms
+      in: query
+      description: Number of bathrooms filter
+      required: false
+      schema:
+        type: integer
+    sort_by:
+      name: sort_by
+      in: query
+      description: Field to sort by
+      required: false
+      schema:
+        type: string
+        enum: [price, date, popularity]
+        default: date
+    sort_order:
+      name: sort_order
+      in: query
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+    time_range:
+      name: time_range
+      in: query
+      description: Time range for analytics
+      required: false
+      schema:
+        type: string
+        enum: [day, week, month, year]
+        default: month
+
+  schemas:
+    property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: '#/components/schemas/location'
+        price:
+          type: number
+        property_type:
+          type: string
+          enum: [residential, commercial, rental, sale]
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        size:
+          type: number
+          description: Size in square feet/meters
+        available:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/media_item'
+
+    property_create:
+      type: object
+      required: [title, description, location, price, property_type]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: '#/components/schemas/location'
+        price:
+          type: number
+        property_type:
+          type: string
+          enum: [residential, commercial, rental, sale]
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        size:
+          type: number
+        available:
+          type: boolean
+          default: true
+
+    property_update:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        available:
+          type: boolean
+
+    location:
+      type: object
+      properties:
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+
+    media_item:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          enum: [image, video, virtual_tour]
+        created_at:
+          type: string
+          format: date-time
+
+    user:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        preferences:
+          $ref: '#/components/schemas/user_preferences'
+        created_at:
+          type: string
+          format: date-time
+
+    user_register:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 8
+
+    user_login:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          format: password
+
+    auth_token:
+      type: object
+      properties:
+        token:
+          type: string
+        expires_in:
+          type: integer
+
+    user_preferences:
+      type: object
+      properties:
+        preferred_property_types:
+          type: array
+          items:
+            type: string
+        budget_range:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+        preferred_locations:
+          type: array
+          items:
+            type: string
+
+    agent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        license_number:
+          type: string
+        commission_rate:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    agent_register:
+      type: object
+      required: [name, email, password, license_number]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 8
+        license_number:
+          type: string
+        commission_rate:
+          type: number
+          default: 0.05
+
+    payment_request:
+      type: object
+      required: [property_id, amount, payment_method]
+      properties:
+        property_id:
+          type: string
+        amount:
+          type: number
+        payment_method:
+          type: string
+          enum: [credit_card, paypal, bank_transfer]
+        card_details:
+          type: object
+          properties:
+            number:
+              type: string
+            expiry:
+              type: string
+            cvv:
+              type: string
+
+    payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        property_id:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+          enum: [pending, completed, failed]
+        transaction_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    property_analytics:
+      type: object
+      properties:
+        property_id:
+          type: string
+        total_views:
+          type: integer
+        views_by_day:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              count:
+                type: integer
+        avg_time_on_page:
+          type: number
+        conversion_rate:
+          type: number
+
+    virtual_tour_create:
+      type: object
+      required: [property_id, title, description]
+      properties:
+        property_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        files:
+          type: array
+          items:
+            type: string
+            format: binary
