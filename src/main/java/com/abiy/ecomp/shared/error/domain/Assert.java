@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -28,7 +30,7 @@ public final class Assert {
     /**
      * Ensure that the input is not null
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input input to check
      * @throws MissingMandatoryValueException if the input is null
      */
@@ -41,7 +43,7 @@ public final class Assert {
     /**
      * Ensure that the value is not blank (null, empty or only whitespace)
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input input to check
      * @throws MissingMandatoryValueException if the input is blank
      */
@@ -52,7 +54,7 @@ public final class Assert {
     /**
      * Ensure that the given collection is not empty
      *
-     * @param field      name of the field to check (will be displayed in an exception message)
+     * @param field      searchTerm of the field to check (will be displayed in an exception message)
      * @param collection collection to check
      * @throws MissingMandatoryValueException if the collection is null or empty
      */
@@ -63,7 +65,7 @@ public final class Assert {
     /**
      * Ensure that the given map is not empty
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param map   map to check
      * @throws MissingMandatoryValueException if the map is null or empty
      */
@@ -84,13 +86,13 @@ public final class Assert {
      *
      * <pre>
      * <code>
-     * Assert.field("name", name)
+     * Assert.field("searchTerm", searchTerm)
      *   .notBlank()
      *   .maxLength(150);
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input string to check
      * @return A {@link StringAsserter} for this field and value
      */
@@ -113,7 +115,7 @@ public final class Assert {
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input value to check
      * @return An {@link IntegerAsserter} for this field and value
      */
@@ -136,7 +138,7 @@ public final class Assert {
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input value to check
      * @return An {@link LongAsserter} for this field and value
      */
@@ -159,7 +161,7 @@ public final class Assert {
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input value to check
      * @return An {@link DoubleAsserter} for this field and value
      */
@@ -182,7 +184,7 @@ public final class Assert {
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input value to check
      * @return An {@link DoubleAsserter} for this field and value
      */
@@ -205,7 +207,7 @@ public final class Assert {
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input value to check
      * @return An {@link BigDecimalAsserter} for this field and value
      */
@@ -222,13 +224,13 @@ public final class Assert {
      *
      * <pre>
      * <code>
-     * Assert.field("name", name)
+     * Assert.field("searchTerm", searchTerm)
      *  .notEmpty()
      *  .maxSize(150);
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input collection to check
      * @return A {@link CollectionAsserter} for this field and value
      */
@@ -245,13 +247,13 @@ public final class Assert {
      *
      * <pre>
      * <code>
-     * Assert.field("name", name)
+     * Assert.field("searchTerm", searchTerm)
      *  .notEmpty()
      *  .maxSize(150);
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input array to check
      * @return A {@link ArrayAsserter} for this field and value
      */
@@ -274,7 +276,7 @@ public final class Assert {
      * </code>
      * </pre>
      *
-     * @param field name of the field to check (will be displayed in an exception message)
+     * @param field searchTerm of the field to check (will be displayed in an exception message)
      * @param input value to check
      * @return An {@link InstantAsserter} for this field and value
      */
@@ -359,6 +361,24 @@ public final class Assert {
 
             if (value.length() > length) {
                 throw StringTooLongException.builder().field(field).value(value).maxLength(length).build();
+            }
+
+            return this;
+        }
+
+        /**
+         * @param regex
+         * @return
+         */
+        public StringAsserter regex(String regex) {
+
+            notNull();
+
+            Pattern pattern = Pattern.compile(regex);
+            Matcher matcher = pattern.matcher(value);
+
+            if (!matcher.find()) {
+                throw StringPatternFormatException.builder().field(field).value(value).regexPattern(regex).build();
             }
 
             return this;

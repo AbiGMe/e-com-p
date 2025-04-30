@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -33,7 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.*;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -42,9 +43,9 @@ class SecurityConfiguration {
 
     private static final int TIMEOUT = 2000;
 
-    private final ApplicationSecurityProperties applicationSecurityProperties;
     private final CorsFilter corsFilter;
     private final HandlerMappingIntrospector introspector;
+    private final ApplicationSecurityProperties applicationSecurityProperties;
 
     @Value("${spring.security.oauth2.client.provider.oidc.issuer-uri}")
     private String issuerUri;
@@ -63,7 +64,7 @@ class SecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // @formatter:off
     return http
-      .csrf(csrf -> csrf.disable())
+      .csrf(AbstractHttpConfigurer::disable)
       .addFilterBefore(corsFilter, CsrfFilter.class)
       .headers(headers -> headers
         .contentSecurityPolicy(csp -> csp.policyDirectives(applicationSecurityProperties.getContentSecurityPolicy()))
@@ -74,22 +75,20 @@ class SecurityConfiguration {
       )
       .authorizeHttpRequests(authz -> authz
         .requestMatchers(antMatcher(HttpMethod.OPTIONS, "/**")).permitAll()
-        .requestMatchers(antMatcher("/app/**")).permitAll()
-        .requestMatchers(antMatcher("/i18n/**")).permitAll()
-        .requestMatchers(antMatcher("/content/**")).permitAll()
-        .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
-        .requestMatchers(antMatcher("/swagger-ui.html")).permitAll()
-        .requestMatchers(antMatcher("/v3/api-docs/**")).permitAll()
-        .requestMatchers(antMatcher("/test/**")).permitAll()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/api/authenticate")).permitAll()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/api/auth-info")).permitAll()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/api/admin/**")).hasAuthority(Role.ADMIN.key())
-        .requestMatchers(new MvcRequestMatcher(introspector, "/api/**")).authenticated()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/management/health")).permitAll()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/management/health/**")).permitAll()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/management/info")).permitAll()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/management/prometheus")).permitAll()
-        .requestMatchers(new MvcRequestMatcher(introspector, "/management/**")).hasAuthority(Role.ADMIN.key())
+          .requestMatchers(antMatcher(HttpMethod.OPTIONS, "/**")).permitAll()
+          .requestMatchers(antMatcher(HttpMethod.POST, "/api/v1/customers")).permitAll()
+          .requestMatchers(antMatcher(HttpMethod.POST, "/api/v1/operators")).permitAll()
+          .requestMatchers(antMatcher("/api/v1/auth/**")).permitAll()
+          .requestMatchers(antMatcher("/api/v1/**")).authenticated()
+          .requestMatchers(antMatcher("/app/**")).permitAll()
+          .requestMatchers(antMatcher("/i18n/**")).permitAll()
+          .requestMatchers(antMatcher("/content/**")).permitAll()
+          .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
+          .requestMatchers(antMatcher("/swagger-ui.html")).permitAll()
+          .requestMatchers(antMatcher("/v3/api-docs/**")).permitAll()
+          .requestMatchers(new MvcRequestMatcher(introspector, "/api/authenticate")).permitAll()
+          .requestMatchers(new MvcRequestMatcher(introspector, "/api/auth-info")).permitAll()
+          .requestMatchers(new MvcRequestMatcher(introspector, "/api/v1/admin/**")).hasAuthority(Role.ADMIN.key())
         .anyRequest().authenticated()
       )
       .oauth2Login(withDefaults())

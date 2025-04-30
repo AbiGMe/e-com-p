@@ -11,18 +11,27 @@ spring:
             client:
                 provider:
                     oidc:
-                        issuer-uri: https://dev-123456.us.auth0.com/
+                        issuer-uri: https://usw2.auth.ac/auth/realms/abiy
                 registration:
                     oidc:
-                        client-id: 0oab8eb55Kb9jdMIr5d6
+                        client-id: registration
+                        client-secret: JbSOjooXmLHLIpyNhu3ylOYoJYAST6oO
 springdoc:
     oauth2:
-        authorization-url: https://dev-123456.us.auth0.com/authorize?audience=https://dev-123456.us.auth0.com/api/v2/
+        authorization-url: https://usw2.auth.ac/auth/realms/abiy/protocol/openid-connect/auth
     swagger-ui:
         oauth:
-            client-id: 0oab8eb55Kb9jdMIr5d6
-            realm: jhipster
+            client-id: documentation
+            realm: abiy
             scopes:
                 - openid
                 - profile
                 - email
+keycloak:
+    auth-server-url: https://usw2.auth.ac/auth
+    token-path: /realms/abiy/protocol/openid-connect/token
+    realm: abiy
+    client:
+        id: registration
+        secret: JbSOjooXmLHLIpyNhu3ylOYoJYAST6oO
+

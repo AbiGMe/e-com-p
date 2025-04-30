@@ -19,14 +19,12 @@ public final class MissingMandatoryValueException extends AssertionException {
     }
 
     private static String defaultMessage(String field, String reason) {
-        return new StringBuilder()
-            .append("The field \"")
-            .append(field)
-            .append("\" is mandatory and wasn't set")
-            .append(" (")
-            .append(reason)
-            .append(")")
-            .toString();
+        return "The field \"" +
+            field +
+            "\" is mandatory and wasn't set" +
+            " (" +
+            reason +
+            ")";
     }
 
     @Override

@@ -9,6 +9,7 @@
     <name>ecompApplication</name>
     <description>E-com Property Application</description>
     <packaging>jar</packaging>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -18,8 +19,16 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2024.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -170,6 +179,22 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
     </dependencies>
 
@@ -448,8 +473,31 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
                 <configuration>
-                    <release>${java.version}</release>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <parameters>true</parameters>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <dependency>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>${lombok.mapstruct.binding.version}</version>
+                        </dependency>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <compilerArg>
+                            -Amapstruct.defaultComponentModel=spring
+                        </compilerArg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -596,116 +644,79 @@
                             </configOptions>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>property-api-v1</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>src/main/resources/config/openapi/property-spec.1.0.0.yaml</inputSpec>
-                            <generatorName>spring</generatorName>
-                            <skipOverwrite>true</skipOverwrite>
-                            <modelPackage>
-                                com.abiy.ecomp.feature.property.infrastructure.primary.api.rest.v1.model
-                            </modelPackage>
-                            <apiPackage>com.abiy.ecomp.feature.property.infrastructure.primary.api.rest.v1
-                            </apiPackage>
-                            <output>${project.basedir}</output>
-                            <supportingFilesToGenerate>
-                                ApiUtil.java,RFC3339DateFormat.java
-                            </supportingFilesToGenerate>
-                            <configOptions>
-                                <useBeanValidation>true</useBeanValidation>
-                                <useSwaggerAnnotations>true</useSwaggerAnnotations>
-                                <useTags>true</useTags>
-                                <returnResponse>true</returnResponse>
-                                <openApiSpecFileLocation>.openapi-generator/property-generated-spec.yaml
-                                </openApiSpecFileLocation>
-                                <useJakartaEe>true</useJakartaEe>
-                                <!--                                <hateoas>true</hateoas>-->
-                                <dateLibrary>java8-zoneddatetime</dateLibrary>
-                                <sourceFolder>target/generated-sources/openapi</sourceFolder>
-                                <basePackage>com.abiy.ecomp.feature.property.infrastructure.primary</basePackage>
-                                <configPackage>com.abiy.ecomp.feature.property.infrastructure.primary
-                                </configPackage>
-                                <invokerPackage>
-                                    com.abiy.ecomp.feature.property.infrastructure.primary.api.rest.v1
-                                </invokerPackage>
-                                <hideGenerationTimestamp>true</hideGenerationTimestamp>
-                                <delegatePattern>true</delegatePattern>
-                                <library>spring-boot</library>
-                                <serializationLibrary>jackson</serializationLibrary>
-                                <serializableModel>true</serializableModel>
-                                <useSpringBoot3>true</useSpringBoot3>
-                                <useSpringController>true</useSpringController>
-                                <useOptional>true</useOptional>
-                                <useLombok>true</useLombok>
-                            </configOptions>
-                        </configuration>
-                    </execution>
+<!--                    <execution>-->
+<!--                        <id>property-api-v1</id>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+<!--                        <configuration>-->
+<!--                            <inputSpec>src/main/resources/config/openapi/property-spec.1.0.0.yaml</inputSpec>-->
+<!--                            <generatorName>spring</generatorName>-->
+<!--                            <skipOverwrite>true</skipOverwrite>-->
+<!--                            <modelPackage>-->
+<!--                                com.abiy.ecomp.feature.property.infrastructure.primary.api.rest.v1.model-->
+<!--                            </modelPackage>-->
+<!--                            <apiPackage>com.abiy.ecomp.feature.property.infrastructure.primary.api.rest.v1-->
+<!--                            </apiPackage>-->
+<!--                            <output>${project.basedir}</output>-->
+<!--                            <supportingFilesToGenerate>-->
+<!--                                ApiUtil.java,RFC3339DateFormat.java-->
+<!--                            </supportingFilesToGenerate>-->
+<!--                            <configOptions>-->
+<!--                                <useBeanValidation>true</useBeanValidation>-->
+<!--                                <useSwaggerAnnotations>true</useSwaggerAnnotations>-->
+<!--                                <useTags>true</useTags>-->
+<!--                                <returnResponse>true</returnResponse>-->
+<!--                                <openApiSpecFileLocation>.openapi-generator/property-generated-spec.yaml-->
+<!--                                </openApiSpecFileLocation>-->
+<!--                                <useJakartaEe>true</useJakartaEe>-->
+<!--                                &lt;!&ndash;                                <hateoas>true</hateoas>&ndash;&gt;-->
+<!--                                <dateLibrary>java8-zoneddatetime</dateLibrary>-->
+<!--                                <sourceFolder>target/generated-sources/openapi</sourceFolder>-->
+<!--                                <basePackage>com.abiy.ecomp.feature.property.infrastructure.primary</basePackage>-->
+<!--                                <configPackage>com.abiy.ecomp.feature.property.infrastructure.primary-->
+<!--                                </configPackage>-->
+<!--                                <invokerPackage>-->
+<!--                                    com.abiy.ecomp.feature.property.infrastructure.primary.api.rest.v1-->
+<!--                                </invokerPackage>-->
+<!--                                <hideGenerationTimestamp>true</hideGenerationTimestamp>-->
+<!--                                <delegatePattern>true</delegatePattern>-->
+<!--                                <library>spring-boot</library>-->
+<!--                                <serializationLibrary>jackson</serializationLibrary>-->
+<!--                                <serializableModel>true</serializableModel>-->
+<!--                                <useSpringBoot3>true</useSpringBoot3>-->
+<!--                                <useSpringController>true</useSpringController>-->
+<!--                                <useOptional>true</useOptional>-->
+<!--                                <useLombok>true</useLombok>-->
+<!--                            </configOptions>-->
+<!--                        </configuration>-->
+<!--                    </execution>-->
                 </executions>
             </plugin>
             <plugin>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-maven-plugin</artifactId>
                 <version>4.26.0</version>
-                <executions>
-                    <execution>
-                        <id>tenantSchema</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <changeLogFile>
-                                ${project.basedir}/src/main/resources/config/tenants/liquibase/master.xml
-                            </changeLogFile>
-                            <diffChangeLogFile>
-                                ${project.basedir}/src/main/resources/config/tenants/liquibase/changelog/${maven.build.timestamp}_changelog.xml
-                            </diffChangeLogFile>
-                            <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details,
-                                oauth_client_token,
-                                oauth_code, oauth_refresh_token
-                            </diffExcludeObjects>
-                            <driver>org.postgresql.Driver</driver>
-                            <url>jdbc:postgresql://localhost:5432/zemen_betting</url>
-                            <username>postgres</username>
-                            <password>psql</password>
-                            <referenceUrl>
-                                hibernate:spring:com.admas.betting.core.shared.tenant.**.model?dialect=org.hibernate.dialect.PostgreSQLDialect
-                            </referenceUrl>
-                            <verbose>true</verbose>
-                            <logging>debug</logging>
-                        </configuration>
-                        <goals>
-                            <goal>diff</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>coreSchema</id>
-                        <phase>install</phase>
-                        <configuration>
-                            <changeLogFile>
-                                ${project.basedir}/src/main/resources/config/core/liquibase/db.changelog-master.xml
-                            </changeLogFile>
-                            <diffChangeLogFile>
-                                ${project.basedir}/src/main/resources/config/core/liquibase/changelog/${maven.build.timestamp}_changelog.xml
-                            </diffChangeLogFile>
-                            <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token,
-                                oauth_code, oauth_refresh_token, ad_tenant_detail
-                            </diffExcludeObjects>
-                            <driver>org.postgresql.Driver</driver>
-                            <url>jdbc:postgresql://localhost:5432/admas_betting</url>
-                            <username>postgres</username>
-                            <password>psql</password>
-                            <referenceUrl>
-                                hibernate:spring:com.admas.betting.core.**.model?dialect=org.hibernate.dialect.PostgreSQLDialect
-                            </referenceUrl>
-                            <verbose>true</verbose>
-                            <logging>debug</logging>
-                        </configuration>
-                        <goals>
-                            <goal>diff</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <configuration>
+                    <changeLogFile>
+                        ${project.basedir}/src/main/resources/config/core/liquibase/db.changelog-master.xml
+                    </changeLogFile>
+                    <diffChangeLogFile>
+                        ${project.basedir}/src/main/resources/config/core/liquibase/changelog/${maven.build.timestamp}_changelog.xml
+                    </diffChangeLogFile>
+                    <diffExcludeObjects>oauth_access_token, oauth_approvals, oauth_client_details, oauth_client_token,
+                        oauth_code, oauth_refresh_token, ad_tenant_detail
+                    </diffExcludeObjects>
+                    <driver>org.postgresql.Driver</driver>
+                    <url>jdbc:postgresql://localhost:5432/abiy_ecomp</url>
+                    <username>postgres</username>
+                    <password>psql</password>
+                    <referenceUrl>
+                        hibernate:spring:com.abiy.ecomp.**.model?dialect=org.hibernate.dialect.PostgreSQLDialect
+                    </referenceUrl>
+                    <verbose>true</verbose>
+                    <logging>debug</logging>
+                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>org.liquibase</groupId>

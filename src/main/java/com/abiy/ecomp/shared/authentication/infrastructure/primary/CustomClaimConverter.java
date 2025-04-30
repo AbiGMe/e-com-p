@@ -32,7 +32,7 @@ class CustomClaimConverter implements Converter<Map<String, Object>, Map<String,
     private static final String FAMILY_NAME = "family_name";
     private static final String EMAIL = "email";
     private static final String GROUPS = "groups";
-    private static final String NAME = "name";
+    private static final String NAME = "searchTerm";
     private static final String PREFERRED_USERNAME = "preferred_username";
     private static final String ROLES = "roles";
     private static final String SUB = "sub";
@@ -80,7 +80,7 @@ class CustomClaimConverter implements Converter<Map<String, Object>, Map<String,
     }
 
     private ObjectNode loadUser(ClientRegistration registration, RestTemplate restTemplate, SubAttributes subAttributes) {
-        var headers = new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.AUTHORIZATION, buildBearer(getToken(subAttributes.attributes)));
 
         ResponseEntity<ObjectNode> userInfo = restTemplate.exchange(
@@ -129,11 +129,11 @@ class CustomClaimConverter implements Converter<Map<String, Object>, Map<String,
         }
     }
 
-    private static final class NameClaimAppender implements ClaimAppender {
+    private final static class NameClaimAppender implements ClaimAppender {
 
         @Override
         public void append(Map<String, Object> claim, ObjectNode user) {
-            // Allow full name in a name claim - happens with Auth0
+            // Allow full searchTerm in a searchTerm claim - happens with Auth0
             if (user.has(NAME)) {
                 String[] name = user.get(NAME).asText().split("\\s+");
 
@@ -145,7 +145,7 @@ class CustomClaimConverter implements Converter<Map<String, Object>, Map<String,
         }
     }
 
-    private static final class GroupClaimAppender implements ClaimAppender {
+    private final static class GroupClaimAppender implements ClaimAppender {
 
         @Override
         public void append(Map<String, Object> claim, ObjectNode user) {
@@ -157,7 +157,7 @@ class CustomClaimConverter implements Converter<Map<String, Object>, Map<String,
         }
     }
 
-    private static final class RolesClaimAppender implements ClaimAppender {
+    private final static class RolesClaimAppender implements ClaimAppender {
 
         @Override
         public void append(Map<String, Object> claim, ObjectNode user) {

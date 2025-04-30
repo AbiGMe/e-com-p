@@ -8,12 +8,29 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum Role {
+
+    VIEW_CHARGE,
+    CREATE_CHARGE,
+    UPDATE_CHARGE,
+    CHANGE_STATUS_CHARGE,
+    DELETE_CHARGE,
+
+    VIEW_CURRENCY,
+    CREATE_CURRENCY,
+    UPDATE_CURRENCY,
+    CHANGE_STATUS_CURRENCY,
+    DELETE_CURRENCY,
+
+    CUSTOMER,
+    OPERATOR,
+    AGENT,
+
     ADMIN,
     USER,
     ANONYMOUS,
+    SYSTEM,
     UNKNOWN;
 
-    private static final String PREFIX = "ROLE_";
     private static final Map<String, Role> ROLES = buildRoles();
 
     private static Map<String, Role> buildRoles() {
@@ -23,10 +40,14 @@ public enum Role {
     public static Role from(String role) {
         Assert.notBlank("role", role);
 
-        return ROLES.getOrDefault(role, UNKNOWN);
+        return ROLES.getOrDefault(role.toLowerCase(), UNKNOWN);
     }
 
     public String key() {
-        return PREFIX + name();
+        return name().toLowerCase().replace("_", "-");
+    }
+
+    public String roleName() {
+        return "ROLE_%s".formatted(name().toUpperCase());
     }
 }

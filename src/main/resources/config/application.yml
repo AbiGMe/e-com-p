@@ -64,11 +64,11 @@ spring:
             client:
                 provider:
                     oidc:
-                        issuer-uri: http://localhost:9080/realms/ecomp
+                        issuer-uri: https://usw2.auth.ac/auth/realms/abiy
                 registration:
                     oidc:
-                        client-id: web_app
-                        client-secret: web_app
+                        client-id: auth
+                        client-secret: QyVx8y4V3GB9LXenX00r8Ooh0PbDpDus
                         scope: openid,profile,email
 langchain4j:
     open-ai:
@@ -132,7 +132,17 @@ springdoc:
         tagsSorter: alpha
         tryItOutEnabled: true
         oauth:
-            client-id: web_app
-            realm: ecomp
+            client-id: documentation
+            realm: abiy
     oauth2:
-        authorization-url: http://localhost:9080/realms/ecomp/protocol/openid-connect/auth
+        authorization-url: https://usw2.auth.ac/auth/realms/abiy/protocol/openid-connect/auth
+
+keycloak:
+    auth-server-url: https://usw2.auth.ac/auth
+    token-path: /realms/abiy/protocol/openid-connect/token
+    realm: abiy
+    client:
+        id: registration
+        secret: JbSOjooXmLHLIpyNhu3ylOYoJYAST6oO
+
+
