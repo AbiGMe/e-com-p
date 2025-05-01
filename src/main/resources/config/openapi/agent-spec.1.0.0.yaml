@@ -10,103 +10,44 @@ servers:
     description: Staging server
 
 tags:
-  - name: properties
-    description: Property listings management
+  - name: agents
+    description: Agent management
 
 paths:
-  # Property Listings Module
-  /properties:
-    get:
-      tags: [ properties ]
-      summary: List all properties
-      parameters:
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/limit'
-      responses:
-        200:
-          description: List of properties
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PropertyPaginated'
+  # Agent Management Module
+  /agents:
     post:
-      tags: [ properties ]
-      summary: Create a new property listing
+      tags: [ agents ]
+      summary: Register a new agent
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/property_create'
+              $ref: '#/components/schemas/agent_register'
       responses:
         201:
-          description: Property created successfully
+          description: Agent registered successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/property'
+                $ref: '#/components/schemas/agent'
 
-  /properties/{property-id}:
+  /agents/{agent-id}/properties:
     get:
-      tags: [ properties ]
-      summary: Get property details
+      tags: [ agents ]
+      summary: Get properties assigned to an agent
       parameters:
-        - $ref: '#/components/parameters/property_id'
+        - $ref: '#/components/parameters/agent_id'
       responses:
         200:
-          description: Property details
+          description: List of assigned properties
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/property'
-    put:
-      tags: [ properties ]
-      summary: Update property details
-      parameters:
-        - $ref: '#/components/parameters/property_id'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/property_update'
-      responses:
-        200:
-          description: Property updated successfully
-    delete:
-      tags: [ properties ]
-      summary: Delete a property
-      parameters:
-        - $ref: '#/components/parameters/property_id'
-      responses:
-        204:
-          description: Property deleted successfully
-
-  /properties/{property-id}/media:
-    post:
-      tags: [ properties ]
-      summary: Upload media for a property
-      parameters:
-        - $ref: '#/components/parameters/property_id'
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              required:
-                - media_type
-              properties:
-                files:
-                  type: array
-                  items:
-                    type: string
-                    format: binary
-                media_type:
-                  type: string
-                  enum: [ image, video, virtual_tour ]
-      responses:
-        201:
-          description: Media uploaded successfully
+                type: array
+                items:
+                  $ref: '#/components/schemas/property'
 
 components:
   parameters:
@@ -225,43 +166,6 @@ components:
         default: month
 
   schemas:
-    ErrorResponse:
-      type: object
-      required:
-        - code
-      properties:
-        code:
-          type: string
-          description: Error code
-          example: INVALID_TOKEN
-        message:
-          type: string
-          description: Error message
-    Paginated:
-      type: object
-      properties:
-        total_pages:
-          type: integer
-          format: int64
-        total:
-          type: integer
-          format: int64
-        has_next:
-          type: boolean
-        is_last:
-          type: boolean
-        is_empty:
-          type: boolean
-
-    PropertyPaginated:
-      allOf:
-        - $ref: '#/components/schemas/Paginated'
-        - type: object
-          properties:
-            contents:
-              type: array
-              items:
-                $ref: '#/components/schemas/property'
     property:
       type: object
       properties:
@@ -299,43 +203,6 @@ components:
           items:
             $ref: '#/components/schemas/media_item'
 
-    property_create:
-      type: object
-      required: [ title, description, location, price, property_type ]
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        location:
-          $ref: '#/components/schemas/location'
-        price:
-          type: number
-        property_type:
-          type: string
-          enum: [ residential, commercial, rental, sale ]
-        bedrooms:
-          type: integer
-        bathrooms:
-          type: integer
-        size:
-          type: number
-        available:
-          type: boolean
-          default: true
-
-    property_update:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        price:
-          type: number
-        available:
-          type: boolean
-
     location:
       type: object
       properties:
@@ -368,3 +235,43 @@ components:
         created_at:
           type: string
           format: date-time
+
+    agent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        license_number:
+          type: string
+        commission_rate:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    agent_register:
+      type: object
+      required: [ name, email, password, license_number ]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        password:
+          type: string
+          format: password
+          minLength: 8
+        license_number:
+          type: string
+        commission_rate:
+          type: number
+          default: 0.05

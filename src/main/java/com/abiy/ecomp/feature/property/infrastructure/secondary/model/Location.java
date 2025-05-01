@@ -1,4 +1,4 @@
-package com.abiy.ecomp.shared.common.infrastructure.secondary.model;
+package com.abiy.ecomp.feature.property.infrastructure.secondary.model;
 
 import com.abiy.ecomp.shared.audit.secondary.AbstractAuditingEntity;
 import jakarta.persistence.*;
@@ -6,30 +6,42 @@ import lombok.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+@Entity
 @Setter
 @Getter
 @Builder
 @AllArgsConstructor
-@Entity(name = "ab_coordinate")
 @NoArgsConstructor(force = true)
-public class Coordinate extends AbstractAuditingEntity<String> {
+@Table(name = "p_location")
+public class Location extends AbstractAuditingEntity<String> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private final String id;
 
-    private float longitude;
+    @Column(name = "address", nullable = false)
+    private String address;
 
-    private float latitude;
+    @Column(name = "city", nullable = false)
+    private String city;
+
+    @Column(name = "state", nullable = false)
+    private String state;
+
+    @Column(name = "country", nullable = false)
+    private String country;
+
+    @Embedded
+    private Coordinates coordinates;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
-        if (!(o instanceof Coordinate that)) return false;
+        if (!(o instanceof Location location)) return false;
 
-        return new EqualsBuilder().append(id, that.id).isEquals();
+        return new EqualsBuilder().append(id, location.id).isEquals();
     }
 
     @Override

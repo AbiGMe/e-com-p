@@ -1,0 +1,172 @@
+openapi: 3.0.1
+info:
+  title: E-Commerce Property Platform API
+  description: API for managing property listings, users, agents, and transactions
+  version: 1.0.0
+servers:
+  - url: https://api.propertyplatform.com/v1
+    description: Production server
+  - url: https://staging-api.propertyplatform.com/v1
+    description: Staging server
+
+tags:
+  - name: analytics
+    description: Reporting and insights
+
+paths:
+
+  # Analytics Module
+  /analytics/{property-id}/property_views:
+    get:
+      tags: [ analytics ]
+      summary: Get property view analytics
+      parameters:
+        - $ref: '#/components/parameters/property_id'
+        - $ref: '#/components/parameters/time_range'
+      responses:
+        200:
+          description: Property view analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/property_analytics'
+
+components:
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number
+      required: false
+      schema:
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        default: 10
+    property_id:
+      name: property-id
+      in: path
+      description: ID of the property
+      required: true
+      schema:
+        type: string
+    user_id:
+      name: user_id
+      in: path
+      description: ID of the user
+      required: true
+      schema:
+        type: string
+    agent_id:
+      name: agent-id
+      in: path
+      description: ID of the agent
+      required: true
+      schema:
+        type: string
+    query:
+      name: query
+      in: query
+      description: Search query
+      required: false
+      schema:
+        type: string
+    property_type:
+      name: property_type
+      in: query
+      description: Type of property (residential, commercial, etc.)
+      required: false
+      schema:
+        type: string
+    location:
+      name: location
+      in: query
+      description: Location filter
+      required: false
+      schema:
+        type: string
+    min_price:
+      name: min_price
+      in: query
+      description: Minimum price filter
+      required: false
+      schema:
+        type: number
+    max_price:
+      name: max_price
+      in: query
+      description: Maximum price filter
+      required: false
+      schema:
+        type: number
+    bedrooms:
+      name: bedrooms
+      in: query
+      description: Number of bedrooms filter
+      required: false
+      schema:
+        type: integer
+    bathrooms:
+      name: bathrooms
+      in: query
+      description: Number of bathrooms filter
+      required: false
+      schema:
+        type: integer
+    sort_by:
+      name: sort_by
+      in: query
+      description: Field to sort by
+      required: false
+      schema:
+        type: string
+        enum: [ price, date, popularity ]
+        default: date
+    sort_order:
+      name: sort_order
+      in: query
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum: [ asc, desc ]
+        default: desc
+    time_range:
+      name: time_range
+      in: query
+      description: Time range for analytics
+      required: false
+      schema:
+        type: string
+        enum: [ day, week, month, year ]
+        default: month
+
+  schemas:
+
+    property_analytics:
+      type: object
+      properties:
+        property_id:
+          type: string
+        total_views:
+          type: integer
+        views_by_day:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              count:
+                type: integer
+        avg_time_on_page:
+          type: number
+        conversion_rate:
+          type: number

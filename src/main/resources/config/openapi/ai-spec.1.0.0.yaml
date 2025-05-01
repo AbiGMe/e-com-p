@@ -1,0 +1,212 @@
+openapi: 3.0.1
+info:
+  title: E-Commerce Property Platform API
+  description: API for managing property listings, users, agents, and transactions
+  version: 1.0.0
+servers:
+  - url: https://api.propertyplatform.com/v1
+    description: Production server
+  - url: https://staging-api.propertyplatform.com/v1
+    description: Staging server
+
+tags:
+
+  - name: ai
+    description: Recommendation engine
+
+paths:
+
+  # AI Recommendations Module
+  /recommendations:
+    get:
+      tags: [ ai ]
+      summary: Get property recommendations for user
+      responses:
+        200:
+          description: Recommended properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/property'
+
+components:
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number
+      required: false
+      schema:
+        type: integer
+        default: 1
+    limit:
+      name: limit
+      in: query
+      description: Number of items per page
+      required: false
+      schema:
+        type: integer
+        default: 10
+    property_id:
+      name: property-id
+      in: path
+      description: ID of the property
+      required: true
+      schema:
+        type: string
+    agent_id:
+      name: agent-id
+      in: path
+      description: ID of the agent
+      required: true
+      schema:
+        type: string
+    query:
+      name: query
+      in: query
+      description: Search query
+      required: false
+      schema:
+        type: string
+    property_type:
+      name: property_type
+      in: query
+      description: Type of property (residential, commercial, etc.)
+      required: false
+      schema:
+        type: string
+    location:
+      name: location
+      in: query
+      description: Location filter
+      required: false
+      schema:
+        type: string
+    min_price:
+      name: min_price
+      in: query
+      description: Minimum price filter
+      required: false
+      schema:
+        type: number
+    max_price:
+      name: max_price
+      in: query
+      description: Maximum price filter
+      required: false
+      schema:
+        type: number
+    bedrooms:
+      name: bedrooms
+      in: query
+      description: Number of bedrooms filter
+      required: false
+      schema:
+        type: integer
+    bathrooms:
+      name: bathrooms
+      in: query
+      description: Number of bathrooms filter
+      required: false
+      schema:
+        type: integer
+    sort_by:
+      name: sort_by
+      in: query
+      description: Field to sort by
+      required: false
+      schema:
+        type: string
+        enum: [ price, date, popularity ]
+        default: date
+    sort_order:
+      name: sort_order
+      in: query
+      description: Sort order
+      required: false
+      schema:
+        type: string
+        enum: [ asc, desc ]
+        default: desc
+    time_range:
+      name: time_range
+      in: query
+      description: Time range for analytics
+      required: false
+      schema:
+        type: string
+        enum: [ day, week, month, year ]
+        default: month
+
+  schemas:
+    property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        location:
+          $ref: '#/components/schemas/location'
+        price:
+          type: number
+        property_type:
+          type: string
+          enum: [ residential, commercial, rental, sale ]
+        bedrooms:
+          type: integer
+        bathrooms:
+          type: integer
+        size:
+          type: number
+          description: Size in square feet/meters
+        available:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        media:
+          type: array
+          items:
+            $ref: '#/components/schemas/media_item'
+
+    location:
+      type: object
+      properties:
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+
+    media_item:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+        type:
+          type: string
+          enum: [ image, video, virtual_tour ]
+        created_at:
+          type: string
+          format: date-time
