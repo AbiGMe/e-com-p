@@ -37,6 +37,10 @@ public class GeneratorException extends RuntimeException {
         return builder(key).status(ErrorStatus.BAD_REQUEST);
     }
 
+    public static GeneratorExceptionBuilder notFound(ErrorKey key) {
+        return builder(key).status(ErrorStatus.NOT_FOUND);
+    }
+
     public static GeneratorException technicalError(String message) {
         return technicalError(message, null);
     }

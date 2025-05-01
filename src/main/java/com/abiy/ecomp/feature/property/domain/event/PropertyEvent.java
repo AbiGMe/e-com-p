@@ -4,5 +4,7 @@ import com.abiy.ecomp.feature.property.domain.model.Property;
 
 public interface PropertyEvent {
 
-    Property notify(Property property);
+    default Property notify(Property property) {
+        return property;
+    }
 }
