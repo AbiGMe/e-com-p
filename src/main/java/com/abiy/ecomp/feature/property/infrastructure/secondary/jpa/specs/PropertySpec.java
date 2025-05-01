@@ -9,6 +9,9 @@ import org.springframework.data.jpa.domain.Specification;
 public record PropertySpec(PropertySearchCriteria criteria) implements Specification<Property> {
     @Override
     public Predicate toPredicate(Root<Property> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+
+        // TODO: missing count
+
         query.distinct(true); // Prevents duplicate records when using fetch joins
 
         // **Solving N+1 Problem**: Fetch location & media items efficiently

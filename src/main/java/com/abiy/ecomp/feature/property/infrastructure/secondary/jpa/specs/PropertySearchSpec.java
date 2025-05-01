@@ -7,6 +7,9 @@ import org.springframework.data.jpa.domain.Specification;
 public record PropertySearchSpec(String searchTerm) implements Specification<Property> {
     @Override
     public Predicate toPredicate(Root<Property> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+
+        // TODO: missing count
+
         query.distinct(true); // Prevents duplicate records from fetch joins
 
         // **Solving the N+1 Problem**: Efficiently fetch related entities

@@ -4,6 +4,7 @@ import com.abiy.ecomp.feature.property.domain.event.PropertyEvent;
 import com.abiy.ecomp.feature.property.domain.exceptions.PropertyErrorKey;
 import com.abiy.ecomp.feature.property.domain.model.Property;
 import com.abiy.ecomp.feature.property.domain.model.PropertyRequest;
+import com.abiy.ecomp.feature.property.domain.model.PropertySearchCriteria;
 import com.abiy.ecomp.feature.property.domain.repository.PropertyRepository;
 import com.abiy.ecomp.shared.authentication.application.AuthenticatedUser;
 import com.abiy.ecomp.shared.error.domain.Assert;
@@ -29,11 +30,19 @@ public class PropertyDomainService {
                 .orElseThrow(() -> GeneratorException.notFound(PropertyErrorKey.PROPERTY_NOT_FOUND).message("Property not found").build());
     }
 
-    public Page<Property> findAll(Pageable paginated) {
+    public Page<Property> findAll(PropertySearchCriteria criteria, Pageable paginated) {
+
+        Assert.notNull("Property criteria", criteria);
+        Assert.notNull("Property paginated", paginated);
+
+        return propertyRepository.findAll(criteria, paginated);
+    }
+
+    public Page<Property> findAll(String searchTerm, Pageable paginated) {
 
         Assert.notNull("Property paginated", paginated);
 
-        return propertyRepository.findAll(null, paginated);
+        return propertyRepository.findAll(searchTerm, paginated);
     }
 
     public Property create(PropertyRequest propertyRequest) {
